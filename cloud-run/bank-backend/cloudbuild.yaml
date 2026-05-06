@@ -1,36 +1,20 @@
 steps:
-<<<<<<< HEAD
-    # Step 1: Build backend container image
     - name: "gcr.io/cloud-builders/docker"
       args:
           [
               "build",
               "-t",
-              "${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_BACKEND_REPO_NAME}/bank-backend:${SHORT_SHA}",
-              "./bank-backend",
+              "us-central1-docker.pkg.dev/gcp-class-16/chloe-alexander-hao-banking-repo/bank-backend",
+              "./cloud-run/bank-backend",
           ]
-      id: "build-backend-image"
-=======
-  - name: 'gcr.io/cloud-builders/docker'
-    args:
-      [
-        'build',
-        '-t',
-        'us-central1-docker.pkg.dev/gcp-class-16/chloe-alexander-hao-banking-repo/bank-backend',
-        '.'
-      ]
->>>>>>> parent of 75bd779 (fix backend docker build context)
 
-    # Step 2: Push backend image to Artifact Registry
     - name: "gcr.io/cloud-builders/docker"
       args:
           [
               "push",
-              "${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_BACKEND_REPO_NAME}/bank-backend:${SHORT_SHA}",
+              "us-central1-docker.pkg.dev/gcp-class-16/chloe-alexander-hao-banking-repo/bank-backend",
           ]
-      id: "push-backend-image"
 
-    # Step 3: Deploy backend to Cloud Run
     - name: "gcr.io/google.com/cloudsdktool/cloud-sdk"
       entrypoint: gcloud
       args:
@@ -39,21 +23,16 @@ steps:
               "deploy",
               "bank-backend",
               "--image",
-              "${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_BACKEND_REPO_NAME}/bank-backend:${SHORT_SHA}",
+              "us-central1-docker.pkg.dev/gcp-class-16/chloe-alexander-hao-banking-repo/bank-backend",
               "--region",
-              "${_REGION}",
+              "us-central1",
               "--platform",
               "managed",
               "--allow-unauthenticated",
           ]
-      id: "deploy-backend-cloudrun"
-
-substitutions:
-    _REGION: us-central1
-    _BACKEND_REPO_NAME: chloe-alexander-hao-banking-repo
 
 images:
-    - "${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_BACKEND_REPO_NAME}/bank-backend:${SHORT_SHA}"
+    - "us-central1-docker.pkg.dev/gcp-class-16/chloe-alexander-hao-banking-repo/bank-backend"
 
 options:
     logging: CLOUD_LOGGING_ONLY
