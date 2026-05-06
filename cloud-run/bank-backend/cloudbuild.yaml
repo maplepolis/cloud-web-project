@@ -1,7 +1,7 @@
 steps:
-    # 1. Build backend Docker image
+    # 1. Build backend image (IMPORTANT: correct directory context)
     - name: "gcr.io/cloud-builders/docker"
-      id: "build-backend"
+      dir: "backend"
       args:
           [
               "build",
@@ -12,7 +12,6 @@ steps:
 
     # 2. Push image to Artifact Registry
     - name: "gcr.io/cloud-builders/docker"
-      id: "push-backend"
       args:
           [
               "push",
@@ -21,7 +20,6 @@ steps:
 
     # 3. Deploy to Cloud Run
     - name: "gcr.io/cloud-builders/gcloud"
-      id: "deploy-backend"
       args:
           [
               "run",
@@ -36,10 +34,8 @@ steps:
               "--allow-unauthenticated",
           ]
 
-# Store image in Artifact Registry
 images:
     - "us-central1-docker.pkg.dev/gcp-class-16/chloe-alexander-hao-banking-repo/backend:$COMMIT_SHA"
 
-# Fix logging error you previously hit
 options:
     logging: CLOUD_LOGGING_ONLY
