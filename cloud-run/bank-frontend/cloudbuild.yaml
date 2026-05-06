@@ -1,5 +1,5 @@
 steps:
-    # 1. Get backend URL from Cloud Run
+    # 1. Get backend URL
     - name: "gcr.io/google.com/cloudsdktool/cloud-sdk"
       entrypoint: "bash"
       args:
@@ -9,16 +9,16 @@ steps:
               --region us-central1 \
               --format='value(status.url)') > backend_url.txt
 
-    # 2. Build frontend Docker image (inject backend URL)
+    # 2. Build frontend image (FIXED PATH HERE)
     - name: "gcr.io/cloud-builders/docker"
       args:
           [
               "build",
               "-t",
-              "us-central1-docker.pkg.dev/gcp-class-16/chloe-alexander-hao-banking-repo/bank-frontend",
+              "us-central1-docker.pkg.dev/gcp-class-16/chloe-alexander-hao-banking-repo/frontend",
               "--build-arg",
               "REACT_APP_API_URL=$(cat backend_url.txt)",
-              "./cloud-run/frontend",
+              "./cloud-run/bank-frontend",
           ]
 
     # 3. Push frontend image
@@ -29,7 +29,7 @@ steps:
               "us-central1-docker.pkg.dev/gcp-class-16/chloe-alexander-hao-banking-repo/frontend",
           ]
 
-    # 4. Deploy frontend to Cloud Run
+    # 4. Deploy frontend
     - name: "gcr.io/google.com/cloudsdktool/cloud-sdk"
       entrypoint: gcloud
       args:
