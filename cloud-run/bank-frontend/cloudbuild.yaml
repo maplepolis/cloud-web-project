@@ -15,7 +15,7 @@ steps:
           [
               "build",
               "-t",
-              "us-central1-docker.pkg.dev/gcp-class-16/chloe-alexander-hao-banking-repo/frontend",
+              "us-central1-docker.pkg.dev/gcp-class-16/chloe-alexander-hao-banking-repo/bank-frontend",
               "--build-arg",
               "REACT_APP_API_URL=$(cat backend_url.txt)",
               "./cloud-run/frontend",
