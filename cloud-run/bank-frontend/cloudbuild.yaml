@@ -1,35 +1,53 @@
 steps:
-  - name: 'gcr.io/cloud-builders/docker'
-    args:
-      [
-        'build',
-        '-t',
-        'us-central1-docker.pkg.dev/gcp-class-16/chloe-alexander-hao-banking-repo/bank-frontend',
-        '.'
-      ]
+    # 1. Get backend URL from Cloud Run
+    - name: "gcr.io/google.com/cloudsdktool/cloud-sdk"
+      entrypoint: "bash"
+      args:
+          - "-c"
+          - |
+              echo $(gcloud run services describe bank-backend \
+              --region us-central1 \
+              --format='value(status.url)') > backend_url.txt
 
-  - name: 'gcr.io/cloud-builders/docker'
-    args:
-      [
-        'push',
-        'us-central1-docker.pkg.dev/gcp-class-16/chloe-alexander-hao-banking-repo/bank-frontend'
-      ]
+    # 2. Build frontend Docker image (inject backend URL)
+    - name: "gcr.io/cloud-builders/docker"
+      args:
+          [
+              "build",
+              "-t",
+              "us-central1-docker.pkg.dev/gcp-class-16/chloe-alexander-hao-banking-repo/frontend",
+              "--build-arg",
+              "REACT_APP_API_URL=$(cat backend_url.txt)",
+              "./cloud-run/frontend",
+          ]
 
-  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
-    entrypoint: gcloud
-    args:
-      [
-        'run',
-        'deploy',
-        'bank-frontend',
-        '--image',
-        'us-central1-docker.pkg.dev/gcp-class-16/chloe-alexander-hao-banking-repo/bank-frontend',
-        '--region',
-        'us-central1',
-        '--platform',
-        'managed',
-        '--allow-unauthenticated'
-      ]
+    # 3. Push frontend image
+    - name: "gcr.io/cloud-builders/docker"
+      args:
+          [
+              "push",
+              "us-central1-docker.pkg.dev/gcp-class-16/chloe-alexander-hao-banking-repo/frontend",
+          ]
+
+    # 4. Deploy frontend to Cloud Run
+    - name: "gcr.io/google.com/cloudsdktool/cloud-sdk"
+      entrypoint: gcloud
+      args:
+          [
+              "run",
+              "deploy",
+              "frontend",
+              "--image",
+              "us-central1-docker.pkg.dev/gcp-class-16/chloe-alexander-hao-banking-repo/frontend",
+              "--region",
+              "us-central1",
+              "--platform",
+              "managed",
+              "--allow-unauthenticated",
+          ]
 
 images:
-  - 'us-central1-docker.pkg.dev/gcp-class-16/chloe-alexander-hao-banking-repo/bank-frontend'
+    - "us-central1-docker.pkg.dev/gcp-class-16/chloe-alexander-hao-banking-repo/frontend"
+
+options:
+    logging: CLOUD_LOGGING_ONLY
