@@ -1,59 +1,45 @@
 steps:
-  # Step 1: Build backend container image
-  - name: 'gcr.io/cloud-builders/docker'
-    args:
-      [
-        'build',
-        '-t',
-        '${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_BACKEND_REPO_NAME}/bank-backend:${SHORT_SHA}',
-        './cloud-run/bank-backend'
-      ]
-    id: 'build-backend-image'
- 
-  # Step 2: Push backend image to Artifact Registry
-  - name: 'gcr.io/cloud-builders/docker'
-    args:
-      [
-        'push',
-        '${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_BACKEND_REPO_NAME}/bank-backend:${SHORT_SHA}'
-      ]
-    id: 'push-backend-image'
- 
-  # Step 3: Deploy backend to Cloud Run
-  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
-    entrypoint: gcloud
-    args:
-      [
-        'run',
-        'deploy',
-        'bank-backend',
-        '--image',
-        '${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_BACKEND_REPO_NAME}/bank-backend:${SHORT_SHA}',
-        '--region',
-        '${_REGION}',
-        '--platform',
-        'managed',
-        '--allow-unauthenticated'
-      ]
-    id: 'deploy-backend-cloudrun'
- 
-  # Get backend URL for frontend configuration
-  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
-    entrypoint: 'bash'
-    args:
-      - '-c'
-      - |
-        BACKEND_URL=$(gcloud run services describe bank-backend --region=${_REGION} --format='value(status.url)')
-        echo "Backend URL: $BACKEND_URL"
-        echo "$BACKEND_URL" > /workspace/backend_url.txt
-    id: 'get-backend-url'
- 
-substitutions:
-  _REGION: us-central1
-  _BACKEND_REPO_NAME: chloe-alexander-hao-banking-repo
- 
+    # 1. Build backend Docker image
+    - name: "gcr.io/cloud-builders/docker"
+      id: "build-backend"
+      args:
+          [
+              "build",
+              "-t",
+              "us-central1-docker.pkg.dev/gcp-class-16/chloe-alexander-hao-banking-repo/backend:$COMMIT_SHA",
+              ".",
+          ]
+
+    # 2. Push image to Artifact Registry
+    - name: "gcr.io/cloud-builders/docker"
+      id: "push-backend"
+      args:
+          [
+              "push",
+              "us-central1-docker.pkg.dev/gcp-class-16/chloe-alexander-hao-banking-repo/backend:$COMMIT_SHA",
+          ]
+
+    # 3. Deploy to Cloud Run
+    - name: "gcr.io/cloud-builders/gcloud"
+      id: "deploy-backend"
+      args:
+          [
+              "run",
+              "deploy",
+              "bank-backend",
+              "--image",
+              "us-central1-docker.pkg.dev/gcp-class-16/chloe-alexander-hao-banking-repo/backend:$COMMIT_SHA",
+              "--region",
+              "us-central1",
+              "--platform",
+              "managed",
+              "--allow-unauthenticated",
+          ]
+
+# Store image in Artifact Registry
 images:
-  - '${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_BACKEND_REPO_NAME}/bank-backend:${SHORT_SHA}'
- 
+    - "us-central1-docker.pkg.dev/gcp-class-16/chloe-alexander-hao-banking-repo/backend:$COMMIT_SHA"
+
+# Fix logging error you previously hit
 options:
-  logging: CLOUD_LOGGING_ONLY
+    logging: CLOUD_LOGGING_ONLY
