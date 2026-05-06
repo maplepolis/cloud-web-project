@@ -1,4 +1,5 @@
 steps:
+<<<<<<< HEAD
     # Step 1: Build backend container image
     - name: "gcr.io/cloud-builders/docker"
       args:
@@ -9,6 +10,16 @@ steps:
               "./bank-backend",
           ]
       id: "build-backend-image"
+=======
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      [
+        'build',
+        '-t',
+        'us-central1-docker.pkg.dev/gcp-class-16/chloe-alexander-hao-banking-repo/bank-backend',
+        '.'
+      ]
+>>>>>>> parent of 75bd779 (fix backend docker build context)
 
     # Step 2: Push backend image to Artifact Registry
     - name: "gcr.io/cloud-builders/docker"
