@@ -5,7 +5,7 @@ steps:
       [
         'build',
         '-t',
-        '${_REGION}-docker.pkg.dev/${_PROJECT_ID}/${_BACKEND_REPO_NAME}/bank-backend:${SHORT_SHA}',
+        '${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_BACKEND_REPO_NAME}/bank-backend:${SHORT_SHA}',
         './cloud-run/bank-backend'
       ]
     id: 'build-backend-image'
@@ -15,7 +15,7 @@ steps:
     args:
       [
         'push',
-        '${_REGION}-docker.pkg.dev/${_PROJECT_ID}/${_BACKEND_REPO_NAME}/bank-backend:${SHORT_SHA}'
+        '${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_BACKEND_REPO_NAME}/bank-backend:${SHORT_SHA}'
       ]
     id: 'push-backend-image'
  
@@ -28,7 +28,7 @@ steps:
         'deploy',
         'bank-backend',
         '--image',
-        '${_REGION}-docker.pkg.dev/${_PROJECT_ID}/${_BACKEND_REPO_NAME}/bank-backend:${SHORT_SHA}',
+        '${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_BACKEND_REPO_NAME}/bank-backend:${SHORT_SHA}',
         '--region',
         '${_REGION}',
         '--platform',
@@ -49,12 +49,11 @@ steps:
     id: 'get-backend-url'
  
 substitutions:
-  _PROJECT_ID: gcp-class-16
   _REGION: us-central1
   _BACKEND_REPO_NAME: chloe-alexander-hao-banking-repo
  
 images:
-  - '${_REGION}-docker.pkg.dev/${_PROJECT_ID}/${_BACKEND_REPO_NAME}/bank-backend:${SHORT_SHA}'
+  - '${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_BACKEND_REPO_NAME}/bank-backend:${SHORT_SHA}'
  
 options:
   logging: CLOUD_LOGGING_ONLY
