@@ -9,17 +9,16 @@ steps:
               --region us-central1 \
               --format='value(status.url)') > backend_url.txt
 
-    # 2. Build frontend image (FIXED PATH HERE)
+    # 2. Build frontend image
     - name: "gcr.io/cloud-builders/docker"
+      entrypoint: "bash"
       args:
-          [
-              "build",
-              "-t",
-              "us-central1-docker.pkg.dev/gcp-class-16/chloe-alexander-hao-banking-repo/frontend",
-              "--build-arg",
-              "REACT_APP_API_URL=$(cat backend_url.txt)",
-              "./cloud-run/bank-frontend",
-          ]
+          - "-c"
+          - |
+              docker build \
+                --build-arg REACT_APP_API_URL=$(cat backend_url.txt) \
+                -t us-central1-docker.pkg.dev/gcp-class-16/chloe-alexander-hao-banking-repo/frontend \
+                ./cloud-run/bank-frontend
 
     # 3. Push frontend image
     - name: "gcr.io/cloud-builders/docker"
@@ -31,7 +30,7 @@ steps:
 
     # 4. Deploy frontend
     - name: "gcr.io/google.com/cloudsdktool/cloud-sdk"
-      entrypoint: gcloud
+      entrypoint: "gcloud"
       args:
           [
               "run",
