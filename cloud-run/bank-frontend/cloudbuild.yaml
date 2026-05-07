@@ -16,7 +16,7 @@ steps:
           - "-c"
           - |
               docker build \
-                --build-arg REACT_APP_API_URL=$(cat backend_url.txt) \
+                --build-arg REACT_APP_API_URL=$(cat backend_url.txt)/api/v1 \
                 -t us-central1-docker.pkg.dev/gcp-class-16/chloe-alexander-hao-banking-repo/frontend \
                 ./cloud-run/bank-frontend
 
